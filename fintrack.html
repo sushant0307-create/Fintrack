@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>FINTRACK – Personal Finance Manager for Students</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a101d; --panel:#111a2c; --panel2:#16213a; --line:#243453;
+  --text:#e7ecf4; --muted:#8e9bb3; --em:#2fbf8f; --em-d:#1d8f6a;
+  --warn:#e0a13a; --bad:#e5675f;
+  --serif:"Newsreader",Georgia,serif; --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;background:radial-gradient(900px 400px at 85% -10%,rgba(47,191,143,.10),transparent 60%);pointer-events:none}
+:focus-visible{outline:2px solid var(--em);outline-offset:2px}
+.wrap{max-width:1140px;margin:0 auto;padding:0 24px;position:relative}
+header{display:flex;align-items:center;gap:28px;padding:22px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{font-family:var(--serif);font-size:1.7rem;letter-spacing:.02em;display:flex;align-items:center;gap:10px}
+.brand svg{width:26px;height:26px}
+.brand small{display:block;font-family:var(--sans);font-size:.72rem;color:var(--muted);letter-spacing:0;margin-top:-4px}
+nav{display:flex;gap:4px;overflow-x:auto;margin-left:auto}
+nav button{background:none;border:none;color:var(--muted);font:inherit;padding:8px 14px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+nav button:hover{color:var(--text)}
+nav button[aria-selected="true"]{color:var(--text);border-color:var(--em)}
+.tab{display:none;padding:40px 0 72px}
+.tab.on{display:block}
+h1,h2{font-family:var(--serif);font-weight:400;letter-spacing:-.01em}
+h1{font-size:clamp(1.9rem,4vw,2.6rem);margin-bottom:6px}
+h2{font-size:1.4rem;margin-bottom:14px}
+.lead{color:var(--muted);margin-bottom:28px;max-width:60ch}
+.grid{display:grid;gap:20px}
+.g2{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:26px}
+.k{color:var(--muted);font-size:.86rem}
+.hero .big{font-family:var(--serif);font-size:clamp(3.4rem,9vw,5.6rem);line-height:1;color:var(--em);margin:10px 0 8px;letter-spacing:-.02em}
+.hero .big span{font-size:.35em;color:var(--muted);margin-left:6px}
+.note{color:var(--muted);font-size:.88rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);margin-top:26px;border-top:1px solid var(--line)}
+.stats div{padding:16px 14px 0 0}
+.stats div+div{padding-left:16px;border-left:1px solid var(--line)}
+.stats b{display:block;font-family:var(--serif);font-weight:500;font-size:1.4rem}
+.stats input{width:100%;margin-top:4px;padding:6px 8px}
+label{display:block;font-size:.85rem;color:var(--muted);margin:14px 0 6px}
+input,select{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:10px 12px}
+input::placeholder{color:#59667e}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{font:inherit;cursor:pointer;border-radius:4px;padding:11px 18px;border:1px solid var(--em);background:var(--em);color:#06201a;font-weight:600;transition:background .2s}
+.btn:hover{background:#4bd3a6}
+.btn.full{width:100%;margin-top:20px}
+.link{background:none;border:none;color:var(--muted);font:inherit;font-size:.85rem;cursor:pointer;text-decoration:underline}
+.link:hover{color:var(--text)}
+.link.del:hover{color:var(--bad)}
+.alert{padding:11px 14px;border-left:3px solid var(--warn);background:rgba(224,161,58,.08);margin-bottom:10px;font-size:.92rem}
+.alert.bad{border-color:var(--bad);background:rgba(229,103,95,.08)}
+.alert.ok{border-color:var(--em);background:rgba(47,191,143,.07)}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th{text-align:left;color:var(--muted);font-weight:500;padding:0 8px 10px;border-bottom:1px solid var(--line)}
+td{padding:11px 8px;border-bottom:1px solid var(--line)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+.bar{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--em);transition:width .4s}
+.bar i.warn{background:var(--warn)} .bar i.bad{background:var(--bad)}
+.item{padding:14px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:none}
+.item .top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.chartbox{position:relative;height:260px}
+.empty{color:var(--muted);font-family:var(--serif);font-style:italic;font-size:1.1rem;padding:18px 0}
+.inline{display:flex;gap:8px;margin-top:10px}.inline input{padding:7px 10px}.inline .btn{padding:7px 14px}
+footer{border-top:1px solid var(--line);padding:26px 0;color:var(--muted);font-size:.85rem}
+@media(max-width:860px){
+  .g2,.g3{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr}
+  .stats div:nth-child(3){border-left:none;padding-left:0}
+  nav{margin-left:0;width:100%}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 26 26" fill="none" aria-hidden="true"><rect x="1" y="1" width="24" height="24" rx="5" stroke="#2fbf8f" stroke-width="1.5"/><path d="M6 18l5-5 3 3 6-7" stroke="#2fbf8f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div>FINTRACK<small>Know your money. Control your spending.</small></div>
+  </div>
+  <nav role="tablist" aria-label="Sections">
+    <button role="tab" data-tab="dash" aria-selected="true">Dashboard</button>
+    <button role="tab" data-tab="exp" aria-selected="false">Expenses</button>
+    <button role="tab" data-tab="bud" aria-selected="false">Budget</button>
+    <button role="tab" data-tab="goal" aria-selected="false">Goals</button>
+    <button role="tab" data-tab="rep" aria-selected="false">Report</button>
+  </nav>
+</header>
+
+<!-- Dashboard -->
+<section class="tab on" id="dash">
+  <h1>Your month at a glance</h1>
+  <p class="lead">Enter your money for this month and FINTRACK shows how much you can comfortably spend each day.</p>
+  <div class="grid g2">
+    <div>
+      <div class="card hero">
+        <div class="k">Safe to spend today</div>
+        <div class="big" id="safe">₹0<span>/ day</span></div>
+        <p class="note" id="safeNote">Add your monthly money below to begin.</p>
+        <div class="stats">
+          <div><span class="k">Monthly money (₹)</span><input id="income" type="number" min="0" placeholder="6000" aria-label="Monthly money"></div>
+          <div><span class="k">Spent so far</span><b id="spent">₹0</b></div>
+          <div><span class="k">Planned expenses (₹)</span><input id="planned" type="number" min="0" placeholder="1000" aria-label="Planned expenses"></div>
+          <div><span class="k">Days left</span><b id="days">0</b></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:20px">
+        <h2>Alerts</h2><div id="alerts"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card"><h2>Spending by category</h2><div class="chartbox"><canvas id="donut"></canvas></div><p class="empty" id="donutEmpty" hidden>No expenses this month yet.</p></div>
+      <div class="card" style="margin-top:20px"><h2>Recent transactions</h2><div id="recent"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Expenses -->
+<section class="tab" id="exp">
+  <h1>Expenses</h1>
+  <p class="lead">Record every rupee. Pick a transaction to edit or delete it.</p>
+  <div class="grid g2" style="grid-template-columns:minmax(0,4fr) minmax(0,8fr)">
+    <div class="card">
+      <h2 id="formTitle">Add expense</h2>
+      <form id="eform" onsubmit="return false" autocomplete="off">
+        <label for="amt">Amount (₹)</label><input id="amt" type="number" min="1" step="1" placeholder="120">
+        <label for="cat">Category</label><select id="cat"></select>
+        <div class="row">
+          <div><label for="dt">Date</label><input id="dt" type="date"></div>
+          <div><label for="pay">Paid by</label><select id="pay"><option>UPI</option><option>Cash</option><option>Card</option></select></div>
+        </div>
+        <label for="note">Note (optional)</label><input id="note" placeholder="Lunch at canteen">
+        <button class="btn full" id="save" type="button">Add expense</button>
+        <p style="margin-top:12px"><button class="link" id="cancel" type="button" hidden>Cancel editing</button></p>
+        <p class="note" id="err" style="color:var(--bad);margin-top:10px"></p>
+      </form>
+    </div>
+    <div class="card">
+      <h2>All transactions</h2>
+      <div class="scroll"><table><thead><tr><th>Date</th><th>Category</th><th>Paid by</th><th class="n">Amount</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+      <p class="empty" id="rowsEmpty" hidden>No transactions yet. Add your first expense.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Budget -->
+<section class="tab" id="bud">
+  <h1>Budget planner</h1>
+  <p class="lead">Set a monthly limit for each category. Bars turn amber at 80% and red when you go over.</p>
+  <div class="grid g2" style="grid-template-columns:minmax(0,5fr) minmax(0,7fr)">
+    <div class="card"><h2>Monthly limits (₹)</h2><div id="budForm"></div><button class="btn full" id="budSave" type="button">Save budgets</button></div>
+    <div class="card"><h2>This month</h2><div id="budView"></div></div>
+  </div>
+</section>
+
+<!-- Goals -->
+<section class="tab" id="goal">
+  <h1>Savings goals</h1>
+  <p class="lead">Save for a laptop, a trip or an emergency fund. FINTRACK estimates how long each goal will take.</p>
+  <div class="grid g2" style="grid-template-columns:minmax(0,4fr) minmax(0,8fr)">
+    <div class="card">
+      <h2>New goal</h2>
+      <label for="gname">Goal</label><input id="gname" placeholder="New laptop">
+      <label for="gtarget">Target (₹)</label><input id="gtarget" type="number" min="1" placeholder="45000">
+      <label for="gmonthly">Saving per month (₹)</label><input id="gmonthly" type="number" min="0" placeholder="1500">
+      <button class="btn full" id="gadd" type="button">Add goal</button>
+      <p class="note" id="gerr" style="color:var(--bad);margin-top:10px"></p>
+    </div>
+    <div class="card"><h2>Your goals</h2><div id="goals"></div></div>
+  </div>
+</section>
+
+<!-- Report -->
+<section class="tab" id="rep">
+  <h1>Monthly report</h1>
+  <p class="lead">A summary of this month and how it compares with the last one.</p>
+  <div class="grid g3" id="repStats"></div>
+  <div class="grid g2" style="margin-top:20px;grid-template-columns:minmax(0,7fr) minmax(0,5fr)">
+    <div class="card"><h2>Spending by week</h2><div class="chartbox"><canvas id="bars"></canvas></div></div>
+    <div class="card"><h2>Insights</h2><div id="insights"></div></div>
+  </div>
+</section>
+
+<footer>FINTRACK is a budgeting aid, not financial advice. Your data is saved only in this browser. Built with HTML, CSS, JavaScript and Chart.js.
+  <button class="link" id="demo" type="button" style="margin-left:12px">Load demo data</button>
+  <button class="link del" id="wipe" type="button">Erase all data</button></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const CATS=["Food & Canteen","Travel","Stationery & Printouts","Subscriptions","Outings","Other"];
+const COL=["#2fbf8f","#4aa3df","#e0a13a","#a78bfa","#e5675f","#8e9bb3"];
+const KEY="fintrack-v1";
+let S={income:0,planned:0,exp:[],bud:{},goals:[]}, editId=null, charts={};
+const $=s=>document.querySelector(s);
+const inr=n=>"₹"+Math.round(n).toLocaleString("en-IN");
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const ym=d=>d.slice(0,7);
+const load=()=>{try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.exp)S=Object.assign(S,s)}catch(e){}};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const inMonth=m=>S.exp.filter(e=>ym(e.date)===m);
+const sum=a=>a.reduce((t,e)=>t+e.amount,0);
+const byCat=a=>CATS.map(c=>sum(a.filter(e=>e.cat===c)));
+const fdate=d=>new Date(d+"T00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"});
+const prevM=m=>{const [y,mo]=m.split("-").map(Number);const d=new Date(y,mo-2,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")};
+function mkChart(id,cfg){ if(!window.Chart)return; if(charts[id])charts[id].destroy(); charts[id]=new Chart($(id),cfg); }
+if(window.Chart){Chart.defaults.color="#8e9bb3";Chart.defaults.borderColor="#243453";Chart.defaults.font.family="Instrument Sans,system-ui,sans-serif";}
+
+/* Tabs */
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.setAttribute("aria-selected",x===b));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.id===b.dataset.tab));
+  render();
+});
+
+/* Dashboard */
+function daysLeft(){const n=new Date();return new Date(n.getFullYear(),n.getMonth()+1,0).getDate()-n.getDate()+1}
+function renderDash(){
+  const m=ym(today()),list=inMonth(m),spent=sum(list),dl=daysLeft();
+  const avail=S.income-spent-S.planned, daily=Math.max(0,avail)/dl;
+  $("#income").value=S.income||""; $("#planned").value=S.planned||"";
+  $("#safe").innerHTML=inr(daily)+"<span>/ day</span>";
+  $("#spent").textContent=inr(spent); $("#days").textContent=dl;
+  $("#safeNote").textContent=!S.income?"Add your monthly money below to begin."
+    :avail<0?"You are "+inr(-avail)+" over your plan this month. Reduce spending or planned expenses."
+    :inr(avail)+" left after spending and planned costs, divided by "+dl+" days. This is a budgeting estimate, not a guarantee.";
+  // alerts
+  const al=[];
+  CATS.forEach((c,i)=>{const lim=+S.bud[c]||0;if(!lim)return;const p=Math.round(byCat(list)[i]/lim*100);
+    if(p>=100)al.push(`<div class="alert bad">You have exceeded your ${esc(c)} budget (${p}% used).</div>`);
+    else if(p>=80)al.push(`<div class="alert">You've used ${p}% of your ${esc(c)} budget.</div>`)});
+  $("#alerts").innerHTML=al.join("")||`<div class="alert ok">No budget warnings. ${Object.keys(S.bud).length?"You are within all your limits.":"Set category budgets to get alerts."}</div>`;
+  // donut
+  const data=byCat(list),has=data.some(v=>v>0);
+  $("#donutEmpty").hidden=has; $(".chartbox canvas#donut").parentElement.hidden=!has;
+  if(has)mkChart("#donut",{type:"doughnut",data:{labels:CATS,datasets:[{data,backgroundColor:COL,borderColor:"#111a2c",borderWidth:3}]},options:{maintainAspectRatio:false,cutout:"66%",plugins:{legend:{position:"bottom",labels:{boxWidth:10,padding:14}}}}});
+  // recent
+  const rec=[...S.exp].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  $("#recent").innerHTML=rec.length?rec.map(e=>`<div class="item"><div class="top"><span>${esc(e.cat)}</span><b>${inr(e.amount)}</b></div><div class="note">${fdate(e.date)} · ${esc(e.pay)}${e.note?" · "+esc(e.note):""}</div></div>`).join(""):`<p class="empty">Nothing recorded yet.</p>`;
+}
+$("#income").onchange=e=>{S.income=Math.max(0,+e.target.value||0);save();render()};
+$("#planned").onchange=e=>{S.planned=Math.max(0,+e.target.value||0);save();render()};
+
+/* Expenses */
+$("#cat").innerHTML=CATS.map(c=>`<option>${esc(c)}</option>`).join("");
+function resetForm(){editId=null;$("#amt").value="";$("#note").value="";$("#dt").value=today();$("#formTitle").textContent="Add expense";$("#save").textContent="Add expense";$("#cancel").hidden=true;$("#err").textContent=""}
+$("#save").onclick=()=>{
+  const amount=+$("#amt").value,date=$("#dt").value;
+  if(!(amount>0)){$("#err").textContent="Enter an amount greater than 0.";return}
+  if(!date){$("#err").textContent="Choose a date.";return}
+  const rec={amount,cat:$("#cat").value,date,pay:$("#pay").value,note:$("#note").value.trim()};
+  if(editId){const i=S.exp.findIndex(e=>e.id===editId);S.exp[i]=Object.assign({id:editId},rec)}
+  else S.exp.push(Object.assign({id:Date.now()+Math.random()},rec));
+  save();resetForm();render();
+};
+$("#cancel").onclick=resetForm;
+$("#rows").onclick=e=>{
+  const id=+e.target.dataset.id;if(!id)return;
+  const x=S.exp.find(v=>v.id===id);
+  if(e.target.dataset.act==="del"){S.exp=S.exp.filter(v=>v.id!==id);save();render()}
+  else{editId=id;$("#amt").value=x.amount;$("#cat").value=x.cat;$("#dt").value=x.date;$("#pay").value=x.pay;$("#note").value=x.note||"";
+    $("#formTitle").textContent="Edit expense";$("#save").textContent="Save changes";$("#cancel").hidden=false;$("#amt").focus()}
+};
+function renderExp(){
+  const l=[...S.exp].sort((a,b)=>b.date.localeCompare(a.date));
+  $("#rowsEmpty").hidden=l.length>0;
+  $("#rows").innerHTML=l.map(e=>`<tr><td>${fdate(e.date)}</td><td>${esc(e.cat)}${e.note?`<div class="note">${esc(e.note)}</div>`:""}</td><td>${esc(e.pay)}</td><td class="n">${inr(e.amount)}</td><td class="n"><button class="link" data-act="edit" data-id="${e.id}">Edit</button> <button class="link del" data-act="del" data-id="${e.id}">Delete</button></td></tr>`).join("");
+  if(!editId&&!$("#dt").value)$("#dt").value=today();
+}
+
+/* Budget */
+$("#budForm").innerHTML=CATS.map((c,i)=>`<label for="b${i}">${esc(c)}</label><input id="b${i}" type="number" min="0" placeholder="0">`).join("");
+$("#budSave").onclick=()=>{CATS.forEach((c,i)=>{const v=+$("#b"+i).value;if(v>0)S.bud[c]=v;else delete S.bud[c]});save();render()};
+function renderBud(){
+  CATS.forEach((c,i)=>{$("#b"+i).value=S.bud[c]||""});
+  const d=byCat(inMonth(ym(today()))),keys=CATS.filter(c=>S.bud[c]);
+  $("#budView").innerHTML=keys.length?keys.map(c=>{const sp=d[CATS.indexOf(c)],lim=S.bud[c],p=sp/lim*100,cl=p>=100?"bad":p>=80?"warn":"";
+    return `<div class="item"><div class="top"><span>${esc(c)}</span><span>${inr(sp)} of ${inr(lim)}</span></div><div class="bar"><i class="${cl}" style="width:${Math.min(100,p)}%"></i></div><div class="note" style="margin-top:6px">${p>=100?inr(sp-lim)+" over budget":inr(lim-sp)+" remaining"}</div></div>`}).join(""):`<p class="empty">Set a limit on the left to start tracking.</p>`;
+}
+
+/* Goals */
+$("#gadd").onclick=()=>{
+  const name=$("#gname").value.trim(),target=+$("#gtarget").value,monthly=+$("#gmonthly").value||0;
+  if(!name||!(target>0)){$("#gerr").textContent="Enter a goal name and a target above 0.";return}
+  S.goals.push({id:Date.now(),name,target,monthly,saved:0});
+  $("#gname").value=$("#gtarget").value=$("#gmonthly").value="";$("#gerr").textContent="";save();render();
+};
+$("#goals").onclick=e=>{
+  const id=+e.target.dataset.id;if(!id)return;const g=S.goals.find(x=>x.id===id);
+  if(e.target.dataset.act==="del"){S.goals=S.goals.filter(x=>x.id!==id)}
+  else{const v=+document.getElementById("add"+id).value;if(!(v>0))return;g.saved=Math.min(g.target,g.saved+v)}
+  save();render();
+};
+function renderGoals(){
+  $("#goals").innerHTML=S.goals.length?S.goals.map(g=>{const p=g.saved/g.target*100,left=g.target-g.saved;
+    const eta=left<=0?"Goal reached.":g.monthly>0?"About "+Math.ceil(left/g.monthly)+" month(s) to go at "+inr(g.monthly)+" a month.":"Set a monthly saving amount to see a timeline.";
+    return `<div class="item"><div class="top"><b>${esc(g.name)}</b><span>${inr(g.saved)} of ${inr(g.target)}</span></div><div class="bar"><i style="width:${p}%"></i></div><div class="note" style="margin-top:6px">${Math.round(p)}% saved. ${eta}</div>
+    <div class="inline"><input id="add${g.id}" type="number" min="1" placeholder="Amount (₹)" aria-label="Amount to add to ${esc(g.name)}"><button class="btn" data-act="add" data-id="${g.id}">Add savings</button><button class="link del" data-act="del" data-id="${g.id}">Remove</button></div></div>`}).join(""):`<p class="empty">No goals yet. Add one to start saving.</p>`;
+}
+
+/* Report */
+function renderRep(){
+  const m=ym(today()),cur=inMonth(m),prev=inMonth(prevM(m)),sc=sum(cur),sp=sum(prev);
+  const sav=S.income-sc, ch=sp?Math.round((sc-sp)/sp*100):null;
+  const card=(k,v,n)=>`<div class="card"><div class="k">${k}</div><div style="font-family:var(--serif);font-size:2rem;margin:6px 0">${v}</div><div class="note">${n}</div></div>`;
+  $("#repStats").innerHTML=card("Money this month",inr(S.income),"Your starting amount")+card("Total spent",inr(sc),ch===null?"No data for last month":(ch>0?ch+"% more":Math.abs(ch)+"% less")+" than last month ("+inr(sp)+")")+card("Left / saved",inr(sav),sav<0?"You spent more than you had":S.income?Math.round(sav/S.income*100)+"% of your money":"Add your monthly money first");
+  const wk=[0,0,0,0,0];cur.forEach(e=>{wk[Math.min(4,Math.floor((+e.date.slice(8)-1)/7))]+=e.amount});
+  mkChart("#bars",{type:"bar",data:{labels:["Days 1-7","8-14","15-21","22-28","29+"],datasets:[{data:wk,backgroundColor:"#2fbf8f",borderRadius:3}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:"#1b2842"}},x:{grid:{display:false}}}}});
+  const d=byCat(cur),top=d.indexOf(Math.max(...d)),ins=[];
+  if(sc>0){ins.push(`Your biggest category is <b>${esc(CATS[top])}</b> at ${inr(d[top])} (${Math.round(d[top]/sc*100)}% of spending).`);
+    const pm=CATS.reduce((o,c)=>{o[c]=sum(cur.filter(e=>e.pay===c));return o},{});
+    ["UPI","Cash","Card"].forEach(p=>{const v=sum(cur.filter(e=>e.pay===p));if(v)ins.push(`${p}: ${inr(v)} this month.`)});
+    ins.push(`You average ${inr(sc/Math.max(1,new Date().getDate()))} per day so far.`)}
+  $("#insights").innerHTML=ins.length?ins.map(t=>`<div class="item">${t}</div>`).join(""):`<p class="empty">Add expenses to see insights.</p>`;
+}
+
+/* Demo + wipe */
+$("#demo").onclick=()=>{
+  const n=new Date(),Y=n.getFullYear(),M=n.getMonth(),pad=v=>String(v).padStart(2,"0"),mk=(mo,d,cat,amount,pay,note)=>{const dt=new Date(Y,mo,d);return{id:Math.random()*1e9+1,date:dt.getFullYear()+"-"+pad(dt.getMonth()+1)+"-"+pad(dt.getDate()),cat,amount,pay,note}};
+  const day=Math.max(1,n.getDate());
+  const seed=[];[[1,"Food & Canteen",140,"UPI","Lunch"],[2,"Travel",60,"Cash","Auto"],[3,"Stationery & Printouts",90,"UPI","Record sheets"],[4,"Outings",350,"UPI","Movie"],[6,"Food & Canteen",120,"Cash","Dinner"],[8,"Subscriptions",199,"Card","Music"],[10,"Food & Canteen",160,"UPI","Canteen"],[12,"Travel",120,"UPI","Metro"],[14,"Outings",280,"UPI","Cafe"],[17,"Food & Canteen",130,"Cash","Lunch"],[21,"Other",150,"UPI","Haircut"]].forEach(r=>{if(r[0]<=day)seed.push(mk(M,...r))});
+  [[5,"Food & Canteen",150],[9,"Travel",200],[15,"Outings",400],[22,"Subscriptions",199],[26,"Food & Canteen",220]].forEach(r=>seed.push(mk(M-1,r[0],r[1],r[2],"UPI","")));
+  S={income:6000,planned:1000,exp:seed,bud:{"Food & Canteen":1500,"Travel":600,"Outings":800,"Subscriptions":250},goals:[{id:1,name:"New laptop",target:45000,monthly:1500,saved:3000}]};
+  save();render();
+};
+$("#wipe").onclick=()=>{if(confirm("Erase all FINTRACK data from this browser?")){S={income:0,planned:0,exp:[],bud:{},goals:[]};save();render()}};
+
+function render(){renderDash();renderExp();renderBud();renderGoals();renderRep()}
+load();$("#dt").value=today();render();
+</script>
+</body>
+</html>
