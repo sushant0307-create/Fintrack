@@ -4,7 +4,7 @@ Know your money. Control your spending. Reach your goals.
 
 FINTRACK is a web application that helps college students understand where their money goes, stay within a budget, and save for goals. It is built with plain HTML, CSS and JavaScript, so it needs no backend and no installation.
 
-Live demo: https://your-project-name.vercel.app (replace with your link)
+Live demo: https://fin-track-eight-neon.vercel.app/
 
 Problem Statement
 
